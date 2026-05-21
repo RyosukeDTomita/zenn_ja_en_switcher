@@ -50,13 +50,26 @@ Zennは翻訳機能をオンにしている場合、英語記事が自動生成�
 
 ### install from release
 
-[最新のRelease](https://github.com/RyosukeDTomita/zenn_ja_en_switcher/releases)から環境にあったzipファイルを取得する。
-
 #### Chrome / Edge
 
+1. [最新のRelease](https://github.com/RyosukeDTomita/zenn_ja_en_switcher/releases)から `*-chrome.zip` をダウンロードする。
+2. ダウンロードした zip を任意のディレクトリに解凍する。
+3. `chrome://extensions` を開き、右上の「デベロッパーモード」を ON にする。
+4. 「パッケージ化されていない拡張機能を読み込む」をクリックし、解凍したフォルダを選択する。
 
+> [!NOTE]
+> Chrome は zip を直接インストールできないため、解凍してフォルダを読み込む。
 
 #### Firefox
+
+1. [最新のRelease](https://github.com/RyosukeDTomita/zenn_ja_en_switcher/releases)から `*-firefox.zip` をダウンロードする。
+2. `about:debugging#/runtime/this-firefox` を開く。
+3. 「一時的なアドオンを読み込む」をクリックし、ダウンロードした zip を選択する。
+   (一時インストールのため、Firefox を再起動すると消える)
+
+> [!WARNING]
+> 通常版 Firefox は署名 (AMO) のない zip の恒久インストールを拒否する。
+> 一時インストールでのみ未署名 zip を読み込める。
 
 
 ### build yourself
