@@ -7,4 +7,11 @@ export default defineConfig({
     description: 'Switch a Zenn article between Japanese and English with one click.',
     host_permissions: ['https://zenn.dev/*'],
   },
+  vite: () => ({
+    server: {
+      watch: {
+        ignored: ['**/.direnv/**', '**/.git/**', '**/node_modules/**'],
+      },
+    },
+  }),
 });
