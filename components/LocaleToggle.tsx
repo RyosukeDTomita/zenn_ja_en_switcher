@@ -14,15 +14,10 @@ function switchLocale(toEnglish: boolean): void {
 }
 
 export function LocaleToggle() {
-  const isEn =
-    new URL(window.location.href).searchParams.get(LOCALE_PARAM) === EN;
+  const isEn = new URL(window.location.href).searchParams.get(LOCALE_PARAM) === EN;
 
   return (
-    <div
-      className={styles.container}
-      role="group"
-      aria-label="Zenn locale toggle"
-    >
+    <div className={styles.container} role="group" aria-label="Zenn locale toggle">
       <button
         type="button"
         className={styles.button}

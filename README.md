@@ -15,6 +15,19 @@ Zennは翻訳機能をオンにしている場合、英語記事が自動生成�
 だが、記事の執筆者が翻訳されたページを確認するためには、URLに`?locale=en`を付ける必要がある。
 本拡張機能は、UI 上に切り替えスイッチを提供し、記事投稿者の翻訳確認などを楽にする。
 
+
+1. Zenn の記事ページを開くと、右下に `🇯🇵 JA` / `🇬🇧 EN` のトグルボタンが表示される (初期状態は JA)。
+
+   ![JA トグル](assets/1.png)
+
+   ![日本語記事ページ](assets/2.png)
+
+2. `EN` をクリックすると `?locale=en` が付与され、AI 翻訳された英語版に切り替わる。
+
+   ![EN トグル](assets/3.png)
+
+   ![英語翻訳ページ](assets/4.png)
+
 ---
 
 ## ENVIRONMENT
@@ -35,7 +48,18 @@ Zennは翻訳機能をオンにしている場合、英語記事が自動生成�
 
 <https://zenn.dev/settings/account> により、該当ユーザが**記事の英語版の生成を有効にする**をオンにしていること
 
-### build from source and install
+### install from release
+
+[最新のRelease](https://github.com/RyosukeDTomita/zenn_ja_en_switcher/releases)から環境にあったzipファイルを取得する。
+
+#### Chrome / Edge
+
+
+
+#### Firefox
+
+
+### build yourself
 
 #### Chrome / Edge
 
@@ -108,60 +132,11 @@ bun run zip:firefox
 
 ### debug with Claude Code using chrome-devtools-mcp
 
-content script が実際の Zenn ページで動くかを、[chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp) 経由で検証する手順。
-(詳細な手順とスニペットは `.claude/skills/debug-extension/SKILL.md` にもまとめてある)
+content script が実際の Zenn ページで動くかを [chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp) 経由で検証できる。
 
-#### 方針
+- 要点は、ユーザーが手動ロードした実 Chrome に `--browserUrl` で remote-debugging 接続すること
+  - (MCP が新規起動する Chrome には拡張が入らないため)。
+  - 専用 `--user-data-dir` で Chrome を起動し、`chrome://extensions` から `.output/chrome-mv3/` を手動ロードする。
 
-chrome-devtools-mcp はデフォルトで専用 Chrome を新規起動するが、そこには拡張機能が入っていない。
-さらにコマンドラインの `--load-extension` は Chrome 128+/144 のロックで不安定なので使わない。
-**ユーザーが手動ロードした実 Chrome に `--browserUrl` で remote-debugging 接続する**のが確実。
+詳細な手順は `.claude/skills/debug-extension/SKILL.md` を参照。
 
-#### 既知の落とし穴
-
-- **Chrome 136+**: デフォルトプロファイルでは `--remote-debugging-port` が無効化される → 専用 `--user-data-dir` を使う
-- **Chrome 128+/144**: コマンドラインの `--load-extension` が既定で無効 → `chrome://extensions` から手動ロードが確実
-- MCP は `chrome://*` 内部ページを列挙・選択しない (`list_pages` が空でも接続は生きている)
-- content script は拡張ロード後に開いたタブにしか注入されない → ロード後にページをリロード
-- 本拡張は content-script のみ (background/service worker なし) なので、ロード確認は Zenn ページ上の `zenn-locale-toggle` 要素の有無で行う
-
-#### 手順
-
-1. ビルドを最新化
-
-   ```sh
-   bun run build
-   ```
-
-2. プロジェクト直下に `.mcp.json` を作成 (接続方式)
-
-   ```json
-   {
-     "mcpServers": {
-       "chrome-devtools-ext": {
-         "type": "stdio",
-         "command": "npx",
-         "args": ["-y", "chrome-devtools-mcp@latest", "--browserUrl=http://127.0.0.1:9222"]
-       }
-     }
-   }
-   ```
-
-3. 専用プロファイルで Chrome を起動(ユーザが実行)
-
-   ```sh
-   google-chrome \
-     --remote-debugging-port=9222 \
-     --user-data-dir="$HOME/.config/google-chrome-zenn-debug"
-   ```
-
-   起動した Chrome の `chrome://extensions` で、デベロッパーモード ON →
-   「パッケージ化されていない拡張機能を読み込む」→ `.output/chrome-mv3/` を選択。
-   (専用プロファイルなので一度入れれば次回以降も残る)
-
-4. Claude Code を再起動して `chrome-devtools-ext` ツールを有効化
-
-5. MCP で `new_page` → Zenn 記事を開き、`navigate_page` (reload) で content script を注入。
-   `evaluate_script` で `zenn-locale-toggle` の有無やトグル状態を検証し、`take_screenshot` で目視。
-
-> ビルドし直した後は `chrome://extensions` で拡張の再読み込み (↻) が必要。
